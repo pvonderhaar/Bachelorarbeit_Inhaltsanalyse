@@ -1,0 +1,1 @@
+# Das hier ist das ReadMe zur meiner BAchelorarbeit
