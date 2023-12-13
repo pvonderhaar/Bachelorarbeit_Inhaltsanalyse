@@ -1,1 +1,1 @@
-# Das hier ist das ReadMe zur meiner BAchelorarbeit
+# Das hier ist das ReadMe zu meiner Bachelorarbeit
