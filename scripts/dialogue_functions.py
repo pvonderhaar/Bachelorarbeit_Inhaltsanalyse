@@ -1,9 +1,11 @@
+import pandas as pd
 from delab_trees.delab_tree import DelabTree
 from delab_trees import TreeManager
 from delab_trees.exceptions import NotATreeException
 from delab_trees.util import get_root
 import networkx as nx
 import matplotlib.pyplot as plt
+
 
 def get_dialogue_authors(tree):
     interaction_graph = tree.as_author_interaction_graph()
@@ -42,7 +44,7 @@ def get_dialogue_paths(tree):
         for ids in possible_ids:
             intersection1 = set(path) & set(ids[0])
             intersection2 = set(path) & set(ids[1])
-            # der Dialog soll mindetens aba sein
+            # der Dialog soll mindestens aba sein
             if ((len(intersection1) > 1) & (len(intersection2) > 2)) | (
                     (len(intersection1) > 2) & (len(intersection2) > 1)):
                 dialogue_paths.append(path)
@@ -50,7 +52,7 @@ def get_dialogue_paths(tree):
     return dialogue_paths
 
 
-def dialogue_paths_to_csv(manager):
+def dialogue_paths_to_df(manager):
     trees = manager.trees
     dialogue_paths_dict = {}
     for tree in trees.values():
@@ -60,17 +62,23 @@ def dialogue_paths_to_csv(manager):
                 dialogue_paths_dict[tree.conversation_id] = dialogue_paths
         except NotATreeException:
             continue
-    dialogue_df = tree.df
-    dialogue_df['path'] = None
-    dialogue_df['a/b author'] = 'x'
+    tree_df = tree.df
+    columns = list(tree_df.columns)
+    columns += ['path', 'a/b author']
+    dialogue_df = pd.DataFrame(columns=columns)
     for conversation_id in dialogue_paths_dict.keys():
         paths = dialogue_paths_dict[conversation_id]
-        this_conversation = dialogue_df[dialogue_df['tree_id'] == conversation_id]
+        # this_conversation = dialogue_df[dialogue_df['tree_id'] == conversation_id]
         # post_list = this_conversation['post_id'].tolist()
-        for post_row in this_conversation.iterrows():
-            post_id = post_row['post_id']
-            matching_indices = [index for index, lst in enumerate(paths) if post_id in lst]
-            print(matching_indices)
-            post_row['path'] = matching_indices
+        i = 1
+        for path in paths:
+            assert len(set(path) & set(tree_df['post_id'].tolist())) == len(path), ("die Anzahl der Posts mit "
+                                                                                    "den Post_ids aus dem Path sollte"
+                                                                                    "die gleiche sein wie die Länge des Path")
+            path_df = tree_df.loc[tree_df['post_id'].isin(path)].copy()
+            path_df['path'] = i
+            path_df['a/b author'] = 'x'
+            dialogue_df.append(path_df)
+            i =+ 1
 
     return dialogue_df
