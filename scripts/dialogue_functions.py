@@ -1,14 +1,10 @@
 import pandas as pd
-from delab_trees.delab_tree import DelabTree
-from delab_trees import TreeManager
 from delab_trees.exceptions import NotATreeException
 from delab_trees.util import get_root
 import networkx as nx
-import matplotlib.pyplot as plt
 
 
 def get_dialogue_authors(tree):
-
     """
     Gibt alle Autoren im Tree, die an einem Dialog beteiligt sind zurück
     :param tree: Aktueller Baum (von objekt DelabTree)
@@ -22,7 +18,6 @@ def get_dialogue_authors(tree):
 
 
 def get_dialogue_paths(tree):
-
     """
     Funktion arbeitet alle Paths heraus, in denen Dialoge vorkommen und gibt sie als Liste von post_id-Listen zurück
     :param tree: Der Aktuelle Baum, indem die Dialog-Paths gelabelt werden sollen
@@ -63,7 +58,6 @@ def get_dialogue_paths(tree):
 
 
 def label_ab_authors(path_df, cycle_authors):
-
     """
     Funktion setzt im path die Autoren auf a und b, die im dialog vorkommen
     falls es mehrere dialoge im path gibt, werden sie auf c/d usw. gesetzt.
