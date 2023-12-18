@@ -8,6 +8,13 @@ import matplotlib.pyplot as plt
 
 
 def get_dialogue_authors(tree):
+
+    """
+    Gibt alle Autoren im Tree, die an einem Dialog beteiligt sind zurück
+    :param tree: Aktueller Baum (von objekt DelabTree)
+    :return: Alle Autoren Ids die im Baum an Dialogen beteiligt sind (Als liste von zwei-Element Listen)
+    """
+
     interaction_graph = tree.as_author_interaction_graph()
     cycles = list(nx.simple_cycles(interaction_graph))
     dialogues = [lst for lst in cycles if len(lst) == 2]
@@ -15,12 +22,16 @@ def get_dialogue_authors(tree):
 
 
 def get_dialogue_paths(tree):
+
+    """
+    Funktion arbeitet alle Paths heraus, in denen Dialoge vorkommen und gibt sie als Liste von post_id-Listen zurück
+    :param tree: Der Aktuelle Baum, indem die Dialog-Paths gelabelt werden sollen
+    :return: List of Paths (as lists)
+    """
+
     cycle_authors = get_dialogue_authors(tree)
     possible_ids = []
-    reply_graph = tree.as_reply_graph()
     tree_as_tree = tree.as_tree()
-
-    tree_id = tree.conversation_id
     post_df = tree.df
     for authors in cycle_authors:
         author1 = authors[0]
@@ -31,7 +42,6 @@ def get_dialogue_paths(tree):
             'post_id'].tolist()
         possible_ids.append([con_ids1, con_ids2])
 
-    reply_graph = tree.as_reply_graph()
     root = get_root(tree_as_tree)
     paths = []
     for node in tree_as_tree:
@@ -52,13 +62,23 @@ def get_dialogue_paths(tree):
     return dialogue_paths
 
 
-def label_ab_authors(path_df, cylce_authors):
-    #Funktion setzt im path die Autoren auf a und b, die im dialog vorkommen
-    # falls es mehrere dialoge im path gibt, werden sie auf c/d usw. gesetzt.
+def label_ab_authors(path_df, cycle_authors):
+
+    """
+    Funktion setzt im path die Autoren auf a und b, die im dialog vorkommen
+    falls es mehrere dialoge im path gibt, werden sie auf c/d usw. gesetzt.
+    Alle Autoren, die nicht am Dialog beteiligt sind, bekommen ein x zugewiesen
+    Alle Root Posts bekommen außerdem ein 'r' zugewiesen
+
+    :param path_df: Der aktuelle path
+    :param cycle_authors: Die Autoren, die im aktuellen Beum an einem Dialog beteiligt sind
+    :return: path_df mit der neuen spalte 'a/b_auhtor'
+    """
+
     path_df['a/b_author'] = 'x'
-    path_df.loc[path_df['parent_id'].isna(), 'a/b_author'] = 'r' #root
+    path_df.loc[path_df['parent_id'].isna(), 'a/b_author'] = 'r'  # root
     i = 0
-    for authors in cylce_authors:
+    for authors in cycle_authors:
         are_in_path = all(author in path_df['author_id'].tolist() for author in authors)
         if not are_in_path:
             continue
@@ -72,17 +92,20 @@ def label_ab_authors(path_df, cylce_authors):
             path_df.loc[path_df['author_id'] == authors[0], 'a/b_author'] = chr(ord('b') + i)
             path_df.loc[path_df['author_id'] == authors[1], 'a/b_author'] = chr(ord('a') + i)
 
-    #falls root mit a oder b üerbschrieben wurde. Aussage: root und Teil eines diologs
+    # falls root mit a oder b üerbschrieben wurde. Aussage: root und Teil eines diologs
     mask = path_df['in_reply_to_user_id'].isna() & (path_df['a/b_author'] != 'r')
     path_df.loc[mask, 'a/b_author'] = 'r and ' + path_df.loc[mask, 'a/b_author']
 
     return path_df
 
 
-
-
-
 def dialogue_paths_to_df(manager):
+    """
+    Benutzt alle oben stehenden Funktionen, um ein Df zu erstellen, das Informationen über a/b Autoren und den path gibt
+    :param manager: Mehrer Trees, die nach dialogen untersucht werden soll
+    :return: neuer df mit den Spalten 'path' und 'a/b_author
+    """
+
     trees = manager.trees
     dialogue_paths_dict = {}
     for tree in trees.values():
@@ -93,7 +116,8 @@ def dialogue_paths_to_df(manager):
         except NotATreeException:
             continue
 
-    columns = ['tree_id', 'post_id', 'parent_id', 'author_id', 'in_reply_to_user_id', 'text', 'created_at', 'path', 'a/b author']
+    columns = ['tree_id', 'post_id', 'parent_id', 'author_id', 'in_reply_to_user_id', 'text', 'created_at', 'path',
+               'a/b author']
     dialogue_df = pd.DataFrame(columns=columns)
     for conversation_id in dialogue_paths_dict.keys():
         paths = dialogue_paths_dict[conversation_id]
