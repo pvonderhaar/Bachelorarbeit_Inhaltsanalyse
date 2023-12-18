@@ -45,8 +45,8 @@ def get_dialogue_paths(tree):
             intersection1 = set(path) & set(ids[0])
             intersection2 = set(path) & set(ids[1])
             # der Dialog soll mindestens aba sein
-            if ((len(intersection1) > 1) & (len(intersection2) > 2)) | (
-                    (len(intersection1) > 2) & (len(intersection2) > 1)):
+            if (((len(intersection1) >= 1) & (len(intersection2) >= 2)) |
+                    ((len(intersection1) >= 2) & (len(intersection2) >= 1))):
                 dialogue_paths.append(path)
 
     return dialogue_paths
@@ -62,23 +62,20 @@ def dialogue_paths_to_df(manager):
                 dialogue_paths_dict[tree.conversation_id] = dialogue_paths
         except NotATreeException:
             continue
-    tree_df = tree.df
-    columns = list(tree_df.columns)
-    columns += ['path', 'a/b author']
+
+    columns = ['tree_id', 'post_id', 'parent_id', 'author_id', 'in_reply_to_user_id', 'text', 'created_at', 'path', 'a/b author']
     dialogue_df = pd.DataFrame(columns=columns)
     for conversation_id in dialogue_paths_dict.keys():
         paths = dialogue_paths_dict[conversation_id]
         # this_conversation = dialogue_df[dialogue_df['tree_id'] == conversation_id]
         # post_list = this_conversation['post_id'].tolist()
+        tree_df = trees[conversation_id].df
         i = 1
         for path in paths:
-            assert len(set(path) & set(tree_df['post_id'].tolist())) == len(path), ("die Anzahl der Posts mit "
-                                                                                    "den Post_ids aus dem Path sollte"
-                                                                                    "die gleiche sein wie die Länge des Path")
             path_df = tree_df.loc[tree_df['post_id'].isin(path)].copy()
             path_df['path'] = i
             path_df['a/b author'] = 'x'
-            dialogue_df.append(path_df)
-            i =+ 1
+            dialogue_df = pd.concat([dialogue_df, path_df], axis=0)
+            i += 1
 
     return dialogue_df
