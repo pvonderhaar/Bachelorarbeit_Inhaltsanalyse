@@ -52,6 +52,36 @@ def get_dialogue_paths(tree):
     return dialogue_paths
 
 
+def label_ab_authors(path_df, cylce_authors):
+    #Funktion setzt im path die Autoren auf a und b, die im dialog vorkommen
+    # falls es mehrere dialoge im path gibt, werden sie auf c/d usw. gesetzt.
+    path_df['a/b_author'] = 'x'
+    path_df.loc[path_df['parent_id'].isna(), 'a/b_author'] = 'r' #root
+    i = 0
+    for authors in cylce_authors:
+        are_in_path = all(author in path_df['author_id'].tolist() for author in authors)
+        if not are_in_path:
+            continue
+
+        first_author = path_df.loc[path_df['author_id'] == authors[0]].iloc[0]
+        second_author = path_df.loc[path_df['author_id'] == authors[1]].iloc[0]
+        if first_author['created_at'] <= second_author['created_at']:
+            path_df.loc[path_df['author_id'] == authors[0], 'a/b_author'] = chr(ord('a') + i)
+            path_df.loc[path_df['author_id'] == authors[1], 'a/b_author'] = chr(ord('b') + i)
+        else:
+            path_df.loc[path_df['author_id'] == authors[0], 'a/b_author'] = chr(ord('b') + i)
+            path_df.loc[path_df['author_id'] == authors[1], 'a/b_author'] = chr(ord('a') + i)
+
+    #falls root mit a oder b üerbschrieben wurde. Aussage: root und Teil eines diologs
+    mask = path_df['in_reply_to_user_id'].isna() & (path_df['a/b_author'] != 'r')
+    path_df.loc[mask, 'a/b_author'] = 'r and ' + path_df.loc[mask, 'a/b_author']
+
+    return path_df
+
+
+
+
+
 def dialogue_paths_to_df(manager):
     trees = manager.trees
     dialogue_paths_dict = {}
@@ -67,14 +97,14 @@ def dialogue_paths_to_df(manager):
     dialogue_df = pd.DataFrame(columns=columns)
     for conversation_id in dialogue_paths_dict.keys():
         paths = dialogue_paths_dict[conversation_id]
-        # this_conversation = dialogue_df[dialogue_df['tree_id'] == conversation_id]
-        # post_list = this_conversation['post_id'].tolist()
-        tree_df = trees[conversation_id].df
+        tree = trees[conversation_id]
+        tree_df = tree.df
+        cycle_authors = get_dialogue_authors(tree)
         i = 1
         for path in paths:
             path_df = tree_df.loc[tree_df['post_id'].isin(path)].copy()
             path_df['path'] = i
-            path_df['a/b author'] = 'x'
+            path_df = label_ab_authors(path_df, cycle_authors)
             dialogue_df = pd.concat([dialogue_df, path_df], axis=0)
             i += 1
 

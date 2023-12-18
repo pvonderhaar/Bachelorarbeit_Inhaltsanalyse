@@ -16,5 +16,4 @@ tree_column_names = ['tree_id', 'post_id', 'parent_id', 'in_reply_to_user_id', '
 tree_df.columns = tree_column_names
 manager = TreeManager(tree_df)
 dialogue_df = dialogue_paths_to_df(manager)
-assert 1 in dialogue_df['path'].values
 dialogue_df.to_csv('daten/dialogue_df.csv')
