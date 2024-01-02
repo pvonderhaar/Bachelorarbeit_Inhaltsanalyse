@@ -4,6 +4,7 @@ from delab_trees.delab_tree import DelabTree
 from delab_trees import TreeManager
 import pandas as pd
 from datetime import datetime
+from delab_trees.test_data_manager import get_social_media_trees
 
 
 def get_basic_test_manager():
@@ -65,6 +66,12 @@ def get_basic_test_manager():
     d7["author_id"] = [1, 2, 3, 4]
     d7['in_reply_to_user_id'] = [None, 1, 2, 2]
 
+    d8 = d.copy()
+    d8['tree_id'] = [8] *6
+    d8['author_id'] = [1,2,3,2,2,1]
+    d8['parent_id'] = [None, 1,2,3,1,5]
+    d8['in_reply_to_user_id'] = [None, 1, 2, 3, 1, 2]
+
     df1 = pd.DataFrame(data=d)
     df2 = pd.DataFrame(data=d2)
     df3 = pd.DataFrame(data=d3)
@@ -72,10 +79,11 @@ def get_basic_test_manager():
     df5 = pd.DataFrame(data=d5)
     df6 = pd.DataFrame(data=d6)
     df7 = pd.DataFrame(data=d7)
+    df8 = pd.DataFrame(data=d8)
 
     # df_list = [df1, df2, df3, df4, df5, df6, df7]
     # TODO implement tree with cycles
-    df_list = [df1, df2, df3, df4, df5, df6]
+    df_list = [df1, df2, df3, df4, df5, df6, df7, df8]
     df = pd.concat(df_list, ignore_index=True)
     manager = TreeManager(df)
     return manager
@@ -83,9 +91,10 @@ def get_basic_test_manager():
 
 def get_elaborate_test_manager():
     # TODO: Hier einen tree manager erstellen, der insb. lange author ids hat
-    df = pd.DataFrame()
-    tree = DelabTree(df=df)
-    return tree
+    normal_manager = get_social_media_trees(platform='twitter', n=10)
+    manager_df = normal_manager.df
+
+
 
 
 class TestDialogueFunctions(unittest.TestCase):

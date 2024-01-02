@@ -4,6 +4,9 @@ from delab_trees.util import get_root
 import networkx as nx
 
 
+# TODO: das ganze mit as_meraged_Self_answers
+
+
 def get_dialogue_authors(tree):
     """
     Gibt alle Autoren im Tree, die an einem Dialog beteiligt sind zurück
@@ -18,6 +21,8 @@ def get_dialogue_authors(tree):
 
 
 def get_dialogue_paths(tree):
+    # TODO: Teilweise sind path nicht vollständig oder doppelt im datensatz
+
     """
     Funktion arbeitet alle Paths heraus, in denen Dialoge vorkommen und gibt sie als Liste von post_id-Listen zurück
     :param tree: Der Aktuelle Baum, indem die Dialog-Paths gelabelt werden sollen
@@ -50,14 +55,15 @@ def get_dialogue_paths(tree):
             intersection1 = set(path) & set(ids[0])
             intersection2 = set(path) & set(ids[1])
             # der Dialog soll mindestens aba sein
-            if (((len(intersection1) >= 1) & (len(intersection2) >= 2)) |
-                    ((len(intersection1) >= 2) & (len(intersection2) >= 1))):
+            if (((len(intersection1) >= 1) & (len(intersection2) >= 1))):
                 dialogue_paths.append(path)
 
     return dialogue_paths
 
 
 def label_ab_authors(path_df, cycle_authors):
+    # TODO: was wenn axxb z.B. auftritt? Root und a oft nicht richitg zugeordnet
+    #
     """
     Funktion setzt im path die Autoren auf a und b, die im dialog vorkommen
     falls es mehrere dialoge im path gibt, werden sie auf c/d usw. gesetzt.
@@ -70,7 +76,7 @@ def label_ab_authors(path_df, cycle_authors):
     """
 
     path_df['a/b_author'] = 'x'
-    path_df.loc[path_df['parent_id'].isna(), 'a/b_author'] = 'r'  # root
+    path_df.loc[path_df['parent_id'] == 'nan', 'a/b_author'] = 'root'  # root
     i = 0
     for authors in cycle_authors:
         are_in_path = all(author in path_df['author_id'].tolist() for author in authors)
@@ -87,10 +93,87 @@ def label_ab_authors(path_df, cycle_authors):
             path_df.loc[path_df['author_id'] == authors[1], 'a/b_author'] = chr(ord('a') + i)
 
     # falls root mit a oder b üerbschrieben wurde. Aussage: root und Teil eines diologs
-    mask = path_df['in_reply_to_user_id'].isna() & (path_df['a/b_author'] != 'r')
-    path_df.loc[mask, 'a/b_author'] = 'r and ' + path_df.loc[mask, 'a/b_author']
+    mask = (path_df['parent_id'] == 'nan') & (~path_df['a/b_author'].isin(['root', 'x']))
+    path_df.loc[mask, 'a/b_author'] = 'root and ' + path_df.loc[mask, 'a/b_author']
 
     return path_df
+
+
+def is_migration_path(path_df):
+    migration_words = ["Arbeitsmigration",
+                       "Asylberechtigter",
+                       "Asylbewerber",
+                       "Asylsuchende",
+                       "Asyl",
+                       "Aufenthaltserlaubnis",
+                       "Aufnahmegesellschaft",
+                       "Ausländer",
+                       "Aussiedler",
+                       "Auswanderung",
+                       "Einwanderung",
+                       "Ausweisung",
+                       "Bildungsausländer",
+                       "Bildungsinländer",
+                       "Bildungsmigration",
+                       "Binnenmigration",
+                       "Binnenvertriebene",
+                       "Blaue Karte EU",
+                       "Doppelte Staatsbürgerschaft",
+                       "Dublin-Verfahren",
+                       "Duldung",
+                       "Einbürgerung",
+                       "Ermessenseinbürgerung",
+                       "Familiennachzug",
+                       "Flucht",
+                       "Flüchtling",
+                       "Freiwillige Rückkehr",
+                       "Gastarbeiter",
+                       "Geflüchtete",
+                       "Gemeinsames Europäisches Asylsystem",
+                       "Genfer Flüchtlingskonvention",
+                       "Gewaltmigration",
+                       "Hochqualifiziert",
+                       "Integration",
+                       "Irreguläre Migranten",
+                       "Irreguläre Migration",
+                       "Irregulärer Aufentahlt",
+                       "Ius sanguinis",
+                       "Ius soli",
+                       "Kettenmigration",
+                       "Königsteiner Schlüssel",
+                       "Kontingentflüchtling",
+                       "Lebensstil-Migration",
+                       "Mehrstaatigkeit",
+                       "Menschenhandel",
+                       "Migrant",
+                       "Migrationshintergrund",
+                       "Migration",
+                       "Non-Refoulment",
+                       "Optionspflicht",
+                       "Pioniermigranten",
+                       "Resettlement",
+                       "Residenzpflicht",
+                       "Rückführung",
+                       "Rücknahmeabkommen",
+                       "Rücküberweisung",
+                       "Remittances",
+                       "Rückwanderung",
+                       "Saisonwanderung",
+                       "Schleuser",
+                       "Schleuserkriminalität",
+                       "Schutzquote",
+                       "Sichere Drittstaaten",
+                       "Sichere Herkunftsstaaten",
+                       "Sichere Herkunftsländer",
+                       "Staatenlose",
+                       "Staatsangehörigkeit",
+                       "Staatsbürgerschaft",
+                       "Subsidärer Schutz",
+                       "Unbegleitete minderjährige Flüchtlinge",
+                       "Verteibung",
+                       "Zirkuläre Migration"]
+    is_migration = any(path_df['text'].str.contains('|'.join(migration_words), case=False))
+    return is_migration
 
 
 def dialogue_paths_to_df(manager):
@@ -111,7 +194,7 @@ def dialogue_paths_to_df(manager):
             continue
 
     columns = ['tree_id', 'post_id', 'parent_id', 'author_id', 'in_reply_to_user_id', 'text', 'created_at', 'path',
-               'a/b author']
+               'a/b_author']
     dialogue_df = pd.DataFrame(columns=columns)
     for conversation_id in dialogue_paths_dict.keys():
         paths = dialogue_paths_dict[conversation_id]
@@ -123,7 +206,8 @@ def dialogue_paths_to_df(manager):
             path_df = tree_df.loc[tree_df['post_id'].isin(path)].copy()
             path_df['path'] = i
             path_df = label_ab_authors(path_df, cycle_authors)
-            dialogue_df = pd.concat([dialogue_df, path_df], axis=0)
+            if is_migration_path(path_df):
+                dialogue_df = pd.concat([dialogue_df, path_df], axis=0)
             i += 1
 
     return dialogue_df
