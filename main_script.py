@@ -20,3 +20,8 @@ dialogue_df.sort_values(by=['tree_id', 'path', 'created_at'], inplace=True)
 print(len(dialogue_df))
 print(len(set(dialogue_df['tree_id'].tolist())))
 dialogue_df.to_csv('daten/dialogue_df_2.csv')
+# speicher alles als xlsx für das labeln + 3 spalten für die label
+
+dialogue_df['label1'] = ''
+dialogue_df['label2'] = ''
+dialogue_df.to_excel('daten/label_df.xlsx')
