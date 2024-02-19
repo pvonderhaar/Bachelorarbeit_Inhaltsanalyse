@@ -55,7 +55,7 @@ def get_dialogue_paths(tree):
             intersection1 = set(path) & set(ids[0])
             intersection2 = set(path) & set(ids[1])
             # der Dialog soll mindestens aba sein
-            if (((len(intersection1) >= 1) & (len(intersection2) >= 1))):
+            if (((len(intersection1) >= 2) & (len(intersection2) >= 1)) | (((len(intersection1) >= 1) & (len(intersection2) >= 2)))):
                 dialogue_paths.append(path)
 
     return dialogue_paths
@@ -96,6 +96,23 @@ def label_ab_authors(path_df, cycle_authors):
     mask = (path_df['parent_id'] == 'nan') & (~path_df['a/b_author'].isin(['root', 'x']))
     path_df.loc[mask, 'a/b_author'] = 'root and ' + path_df.loc[mask, 'a/b_author']
 
+    return path_df
+
+
+def label_author_flow(path_df):
+    author_to_char = {}
+    path_df['author_flow'] = None
+    first_id = path_df['author_id'].iloc[0]
+    author_to_char[first_id] = 'a'
+    for i, row in path_df.iterrows():
+        author_id = row['author_id']
+        if row['author_id'] in author_to_char.keys():
+            row['author_flow'] = author_to_char[author_id]
+        else:
+            last_key = list(author_to_char.keys())[-1]
+            last_value = author_to_char[last_key]
+            author_to_char[author_id] = chr(ord(last_value) + 1)
+            row['author_flow'] = author_to_char[author_id]
     return path_df
 
 
@@ -205,8 +222,8 @@ def dialogue_paths_to_df(manager):
         for path in paths:
             path_df = tree_df.loc[tree_df['post_id'].isin(path)].copy()
             path_df['path'] = i
-            path_df = label_ab_authors(path_df, cycle_authors)
             if is_migration_path(path_df):
+                path_df = label_ab_authors(path_df, cycle_authors)
                 dialogue_df = pd.concat([dialogue_df, path_df], axis=0)
             i += 1
 
