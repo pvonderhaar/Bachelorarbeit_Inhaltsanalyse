@@ -106,13 +106,15 @@ def label_author_flow(path_df):
     author_to_char[first_id] = 'a'
     for i, row in path_df.iterrows():
         author_id = row['author_id']
-        if row['author_id'] in author_to_char.keys():
-            row['author_flow'] = author_to_char[author_id]
+        if author_id in author_to_char.keys():
+            author_flow = author_to_char[author_id]
+            path_df.at[i, 'author_flow'] = author_flow
         else:
             last_key = list(author_to_char.keys())[-1]
             last_value = author_to_char[last_key]
             author_to_char[author_id] = chr(ord(last_value) + 1)
-            row['author_flow'] = author_to_char[author_id]
+            author_flow = author_to_char[author_id]
+            path_df.at[i, 'author_flow'] = author_flow
     return path_df
 
 

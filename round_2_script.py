@@ -7,13 +7,15 @@ from scripts.dialogue_functions import dialogue_paths_to_df, label_author_flow
 from tests.test_dialogue_functions import get_basic_test_manager
 
 data_df = pd.read_excel('daten/label_df_2Runde.xlsx')
+data_df = data_df.drop(columns=['label1', 'label2'])
 print(len(data_df))
-grouped_df = data_df.groupby(['tree_id', 'path']                             )
+grouped_df = data_df.groupby(['tree_id', 'path'])
 new_df = pd.DataFrame()
 for name1, path in grouped_df:
     new_path_df = label_author_flow(path)
     new_df = pd.concat([new_df, new_path_df])
 
+print(len(new_df))
 new_df.to_excel('daten/Runde_2_clean.xlsx')
 
 
