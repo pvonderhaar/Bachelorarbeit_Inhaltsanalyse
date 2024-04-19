@@ -6,7 +6,7 @@
 
 Die Arbeit widmet sich einer sozialwissenschaftlichen Fragestellung, die aber mit Hilfe von Werkzeugen aus der Informatik bzw. der Data Science beantwortet wird. Der Code für den Informatikteil ist in diesem Git-Repository gespeichert. Die verschiedenen Ordner beeinhalten:
 
-### scripts:
+### scripts
 - dialogue_fuctions.py : Funktionen, die die Daten in Paths, die Dialoge enthalten, sortieren
 
 ### tests
