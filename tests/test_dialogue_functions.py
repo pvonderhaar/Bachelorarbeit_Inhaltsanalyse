@@ -7,8 +7,13 @@ from datetime import datetime
 from delab_trees.test_data_manager import get_social_media_trees
 
 
+
+
 def get_basic_test_manager():
-    # TODO: Hier einen einfachen tree manager erstellen
+    """
+    writes a simple tree manager to test the functions for the calculation of dialogues
+    """
+
     d = {'tree_id': [1] * 6,
          'post_id': [1, 2, 3, 4, 5, 6],
          'parent_id': [None, 1, 2, 3, 1, 5],
@@ -87,13 +92,6 @@ def get_basic_test_manager():
     df = pd.concat(df_list, ignore_index=True)
     manager = TreeManager(df)
     return manager
-
-
-def get_elaborate_test_manager():
-    # TODO: Hier einen tree manager erstellen, der insb. lange author ids hat
-    normal_manager = get_social_media_trees(platform='twitter', n=10)
-    manager_df = normal_manager.df
-
 
 
 

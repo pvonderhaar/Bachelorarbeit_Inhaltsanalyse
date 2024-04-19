@@ -4,8 +4,6 @@ from delab_trees.util import get_root
 import networkx as nx
 
 
-# TODO: das ganze mit as_meraged_Self_answers
-
 
 def get_dialogue_authors(tree):
     """
@@ -21,8 +19,6 @@ def get_dialogue_authors(tree):
 
 
 def get_dialogue_paths(tree):
-    # TODO: Teilweise sind path nicht vollständig oder doppelt im datensatz
-
     """
     Funktion arbeitet alle Paths heraus, in denen Dialoge vorkommen und gibt sie als Liste von post_id-Listen zurück
     :param tree: Der Aktuelle Baum, indem die Dialog-Paths gelabelt werden sollen
@@ -62,8 +58,6 @@ def get_dialogue_paths(tree):
 
 
 def label_ab_authors(path_df, cycle_authors):
-    # TODO: was wenn axxb z.B. auftritt? Root und a oft nicht richitg zugeordnet
-    #
     """
     Funktion setzt im path die Autoren auf a und b, die im dialog vorkommen
     falls es mehrere dialoge im path gibt, werden sie auf c/d usw. gesetzt.

@@ -1,3 +1,6 @@
+# Script, um Daten für die zweite Runde der Inhaltsanalyse zu säubern 
+
+
 from delab_trees.delab_tree import DelabTree
 from delab_trees import TreeManager
 from delab_trees.exceptions import NotATreeException
