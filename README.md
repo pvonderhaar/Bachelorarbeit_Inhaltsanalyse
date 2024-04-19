@@ -1,4 +1,4 @@
-# Bachelorarbeit Inhaltsanalysee von Twitter-Dialogen
+# Bachelorarbeit Inhaltsanalyse von Twitter-Dialogen
 
 ## Titel der Arbeit: Eine Inhaltsanalyse von Zwiegesprächen auf Twitter über Migration
 
