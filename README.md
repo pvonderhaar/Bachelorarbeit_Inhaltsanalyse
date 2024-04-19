@@ -4,7 +4,7 @@
 
 ## Fragestellung: Wie verhalten sich Twitter-User:innen in Zwiegesprächen über Migration, in denen Uneinigkeit herrscht?
 
-Die Arbeit widmet sich einer sozialwissenschaftlichen Fragestellung, die aber mit Hilfe von Werkzeugen aus der Informatik bzw. der Data Science beantwortet wird. Der Code für den Informatikteil ist in diesem Git-Repository gespeichert. Die verschiedenen ordner beeinhalten:
+Die Arbeit widmet sich einer sozialwissenschaftlichen Fragestellung, die aber mit Hilfe von Werkzeugen aus der Informatik bzw. der Data Science beantwortet wird. Der Code für den Informatikteil ist in diesem Git-Repository gespeichert. Die verschiedenen Ordner beeinhalten:
 
 ### scripts:
 - dialogue_fuctions.py : Funktionen, die die Daten in Paths, die Dialoge enthalten, sortieren
