@@ -21,7 +21,7 @@ Die Arbeit widmet sich einer sozialwissenschaftlichen Fragestellung, die aber mi
 ## Vorraussetzungen
 - Um die Funktionen zur Erkennung von Dialogen zu nutzen muss der Datensatz folgende Vorraussetzungen erfüllen: 
     - Der Datensatz kann als Delab-Tree gespeichert werden. Mehr Informationen dazu hier: https://github.com/juliandehne/delab-trees
-    - Weiterhin muss der Datensatz die Spalte "in_reply_to_user_id" enthalten.
-- Vorrausgesetzte Libraries in requirement.txt
+    - Weiterhin muss der Datensatz die Spalte "in_reply_to_user_id" enthalten, in der die author-id des vorangegangenen Posts gespeichert ist.
+- Vorrausgesetzte Libraries in requirements.txt
 
 
